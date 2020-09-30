@@ -1,52 +1,123 @@
-#include <iostream>
-#include <vector>
+#include <bits/stdc++.h>
 
-using std::vector;
-void print(vector<vector<int>> v)
+#define fi first
+
+#define se second
+
+#define pb push_back
+
+#define mp make_pair
+
+#define all(x) (x).begin(), (x).end()
+
+#define scn(x) scanf("%d", &x)
+
+#define print(x) printf("%d", x)
+
+#define SZ(x) ((int)(x).size())
+
+using namespace std;
+
+typedef vector<int> VI;
+
+typedef long long ll;
+
+const int INF = 1e9;
+
+
+
+long long eval(long long a, long long b, char op)
+
 {
-  std::cout << "Printing array:\n";
-  for (auto x : v)
-  {
-    for (auto y : x)
-    {
 
-      std::cout << y << " ";
-    }
-    std::cout << "\n";
-  }
-  std::cout << "\n";
+  if (op == '*')
+
+    return a * b;
+
+  else if (op == '+')
+
+    return a + b;
+
+  else if (op == '-')
+
+    return a - b;
+
+  else
+
+    assert(0);
+
 }
-int optimal_weight(int W, const vector<int> &weights)
-{
-  vector<vector<int>> value(weights.size() + 1, vector<int>(W + 1, 0));
 
-  for (size_t i = 1; i <= weights.size(); i++)
-  {
-    for (int w = 1; w <= W; w++)
+
+
+string equation;
+
+ll Min[30][30];
+
+ll Max[30][30];
+
+long long get_maximum_value()
+
+{
+
+  int Len = SZ(equation);
+
+  int numOperations = (SZ(equation) + 1) / 2;
+
+  for (int i = 0; i < numOperations; ++i)
+
+    Min[i][i] = stoll(equation.substr(2 * i, 1)), Max[i][i] = stoll(equation.substr(2 * i, 1));
+
+  for (int s = 0; s < numOperations - 1; ++s)
+
+    for (int i = 0; i < numOperations - s - 1; ++i)
+
     {
-      value[i][w] = value[i - 1][w];
-      if (weights[i - 1] <= w)
+
+      int j = i + s + 1;
+
+      ll minValue = LLONG_MAX, maxValue = LLONG_MIN;
+
+      for (int k = i; k < j; ++k)
+
       {
-        int val = value[i - 1][w - weights[i - 1]] + weights[i - 1];
-        if (value[i][w] < val)
-        {
-          value[i][w] = val;
-        }
+
+        ll a = eval(Min[i][k], Min[k + 1][j], equation[2 * k + 1]);
+
+        ll b = eval(Min[i][k], Max[k + 1][j], equation[2 * k + 1]);
+
+        ll c = eval(Max[i][k], Min[k + 1][j], equation[2 * k + 1]);
+
+        ll d = eval(Max[i][k], Max[k + 1][j], equation[2 * k + 1]);
+
+        minValue = min(minValue, min(a, min(b, min(c, d))));
+
+        maxValue = max(maxValue, max(a, max(b, max(c, d))));
+
       }
+
+      Min[i][j] = minValue, Max[i][j] = maxValue;
+
     }
-    // print(value);
-  }
-  return value[weights.size()][W];
+
+  return Max[0][numOperations - 1];
+
 }
+
+
 
 int main()
+
 {
-  int n, W;
-  std::cin >> W >> n;
-  vector<int> weights(n);
-  for (int i = 0; i < n; i++)
-  {
-    std::cin >> weights[i];
-  }
-  std::cout << optimal_weight(W, weights) << '\n';
+
+  ios::sync_with_stdio(0);
+
+  cin.tie(0);
+
+  cin >> equation;
+
+  cout << get_maximum_value();
+
+  return 0;
+
 }
